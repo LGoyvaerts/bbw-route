@@ -7,5 +7,4 @@ data class Stop(
     val stopid: String,
     val x: Int,
     val y: Int
-) {
-}
+)
