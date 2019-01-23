@@ -1,4 +1,4 @@
-package ch.ti8m.gol.bbw_route.data
+package ch.ti8m.gol.bbw_route.presentation
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
