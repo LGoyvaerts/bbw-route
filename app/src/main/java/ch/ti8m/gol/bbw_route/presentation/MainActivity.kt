@@ -72,6 +72,8 @@ class MainActivity : AppCompatActivity() {
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
+
+                    //TODO getLocation()
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
