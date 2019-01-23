@@ -1,7 +1,8 @@
-package ch.ti8m.gol.bbw_route
+package ch.ti8m.gol.bbw_route.presentation
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import ch.ti8m.gol.bbw_route.R
 
 class MainActivity : AppCompatActivity() {
 
