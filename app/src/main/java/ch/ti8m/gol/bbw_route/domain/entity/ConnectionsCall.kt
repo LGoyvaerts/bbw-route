@@ -1,4 +1,11 @@
 package ch.ti8m.gol.bbw_route.domain.entity
 
-class ConnectionsCall(val connections:List<Connection>?, val from:Location, val to:Location, val stations:ConnectionSummary) {
+import com.google.gson.annotations.SerializedName
+
+class ConnectionsCall(
+    @SerializedName("connections") val connections: List<Connection>?,
+    @SerializedName("from") val from: Location,
+    @SerializedName("to") val to: Location,
+    @SerializedName("stations") val stations: ConnectionSummary
+) {
 }
