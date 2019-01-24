@@ -1,4 +1,4 @@
-package ch.ti8m.gol.bbw_route.domain.entity
+package ch.ti8m.gol.bbw_route.domain.entity.opendata
 
 import com.google.gson.annotations.SerializedName
 
