@@ -50,10 +50,12 @@ class TabOverview : Fragment() {
         //TODO init RecyclerView DataAdapter
         //TODO initViews()
 
+        getWeatherForecast()
+
         return binding.root
     }
 
-    private fun getWeatherForecast(){
+    private fun getWeatherForecast() {
         //Create handle for RetrofitInstance interface
         val weatherDataService: WeatherDataService =
             WeatherRetrofitInstance.getRetrofitInstance().create(WeatherDataService::class.java)
@@ -63,13 +65,34 @@ class TabOverview : Fragment() {
 
         call.enqueue(object : Callback<WeatherForecast> {
             override fun onResponse(call: Call<WeatherForecast>, response: Response<WeatherForecast>) {
-                //TODO init Weather View
+                initWeatherViews(response.body()!!)
             }
 
             override fun onFailure(call: Call<WeatherForecast>, t: Throwable) {
                 Toast.makeText(this@TabOverview.context, "WeatherCallback went wrong", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private fun initWeatherViews(weatherForecast: WeatherForecast) {
+        binding.overviewWeatherLocationTextview.text = weatherForecast.locationName
+
+        val celsiusTemp = weatherForecast.mainInformation.temp - 273.15
+        val celsiusTempRounded = "%.2f".format(celsiusTemp)
+        val celsiusString = "$celsiusTempRounded °C"
+        binding.overviewWeatherTemperatureTextview.text = celsiusString
+
+        val condition = "Condition: ${weatherForecast.weather[0].conditionDescription}"
+        binding.overviewWeatherConditionTextview.text = condition
+
+        val humidity = "Humidity: ${weatherForecast.mainInformation.humidity}%"
+        binding.overviewWeatherHumidityTextview.text = humidity
+
+        val lat = "Latitude: ${weatherForecast.coordinates.lat}"
+        binding.overviewWeatherLatTextview.text = lat
+
+        val lon = "Longitude: ${weatherForecast.coordinates.lon}"
+        binding.overviewWeatherLonTextview.text = lon
     }
 
     private fun checkPermissions() {
