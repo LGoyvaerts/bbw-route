@@ -12,6 +12,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import ch.ti8m.gol.bbw_route.databinding.FragmentOverviewBinding
+import ch.ti8m.gol.bbw_route.domain.entity.openweathermap.WeatherForecast
+import ch.ti8m.gol.bbw_route.remote.WeatherDataService
+import ch.ti8m.gol.bbw_route.remote.WeatherRetrofitInstance
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 class TabOverview : Fragment() {
@@ -45,6 +51,25 @@ class TabOverview : Fragment() {
         //TODO initViews()
 
         return binding.root
+    }
+
+    private fun getWeatherForecast(){
+        //Create handle for RetrofitInstance interface
+        val weatherDataService: WeatherDataService =
+            WeatherRetrofitInstance.getRetrofitInstance().create(WeatherDataService::class.java)
+
+        //TODO take lat/lon from locationService
+        val call = weatherDataService.getWeatherForecast("47.349640", "8.719500")
+
+        call.enqueue(object : Callback<WeatherForecast> {
+            override fun onResponse(call: Call<WeatherForecast>, response: Response<WeatherForecast>) {
+                //TODO init Weather View
+            }
+
+            override fun onFailure(call: Call<WeatherForecast>, t: Throwable) {
+                Toast.makeText(this@TabOverview.context, "WeatherCallback went wrong", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
     private fun checkPermissions() {
