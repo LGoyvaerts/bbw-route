@@ -1,34 +1,33 @@
 package ch.ti8m.gol.bbw_route.presentation.fragments
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.PackageManager
-import android.location.Location
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import ch.ti8m.gol.bbw_route.databinding.FragmentOverviewBinding
 import ch.ti8m.gol.bbw_route.domain.entity.openweathermap.WeatherForecast
-import ch.ti8m.gol.bbw_route.geo.LocationService
-import ch.ti8m.gol.bbw_route.geo.impl.LocationServiceImpl
 import ch.ti8m.gol.bbw_route.remote.WeatherDataService
 import ch.ti8m.gol.bbw_route.remote.WeatherRetrofitInstance
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import timber.log.Timber
 
 
 class TabOverview : Fragment() {
 
-    private val REQUEST_PERMISSIONS_REQUEST_CODE = 34
+    private val REQUEST_PERMISSIONS_REQUEST_CODE = 99
     lateinit var binding: FragmentOverviewBinding
-    private lateinit var location: Location
-    private lateinit var locationService: LocationService
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
 
     companion object {
@@ -45,11 +44,19 @@ class TabOverview : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        checkPermissions()
-        locationService = LocationServiceImpl(activity as Activity)
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity as Activity)
 
-        location = locationService.getLastKnownLocation()
 
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        if (!checkPermissions()) {
+            requestPermissions()
+        } else {
+            getLastKnownLocation()
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -59,18 +66,16 @@ class TabOverview : Fragment() {
         //TODO init RecyclerView DataAdapter
         //TODO initViews()
 
-        getWeatherForecast()
-
         return binding.root
     }
 
-    private fun getWeatherForecast() {
+    private fun getWeatherForecast(lat: String, lon: String) {
         //Create handle for RetrofitInstance interface
         val weatherDataService: WeatherDataService =
             WeatherRetrofitInstance.getRetrofitInstance().create(WeatherDataService::class.java)
 
         //TODO take lat/lon from locationService
-        val call = weatherDataService.getWeatherForecast(location.latitude.toString(), location.longitude.toString())
+        val call = weatherDataService.getWeatherForecast(lat, lon)
 
         call.enqueue(object : Callback<WeatherForecast> {
             override fun onResponse(call: Call<WeatherForecast>, response: Response<WeatherForecast>) {
@@ -104,41 +109,48 @@ class TabOverview : Fragment() {
         binding.overviewWeatherLonTextview.text = lon
     }
 
-    private fun checkPermissions() {
-        // Here, activity is the current activity
-        if (ContextCompat.checkSelfPermission(
-                activity!!.applicationContext,
+    @SuppressLint("MissingPermission")
+    private fun getLastKnownLocation() {
+        fusedLocationProviderClient.lastLocation.addOnCompleteListener {
+            if (it.isSuccessful && it.result != null) {
+                getWeatherForecast(it.result!!.latitude.toString(), it.result!!.longitude.toString())
+            }
+        }.addOnFailureListener {
+            Timber.e(it)
+        }
+    }
+
+    private fun checkPermissions() =
+        ActivityCompat.checkSelfPermission(
+            activity as Activity,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+    private fun requestPermissions() {
+        // Permission is not granted
+        // Should we show an explanation?
+        if (ActivityCompat.shouldShowRequestPermissionRationale(
+                activity as Activity,
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
-            != PackageManager.PERMISSION_GRANTED
         ) {
+            // Show an explanation to the user *asynchronously* -- don't block
+            // this thread waiting for the user's response! After the user
+            // sees the explanation, try again to request the permission.
+            Toast.makeText(context, "Permission is needed", Toast.LENGTH_SHORT).show()
 
-            // Permission is not granted
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    activity as Activity,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                )
-            ) {
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-                Toast.makeText(context, "Permission is needed", Toast.LENGTH_SHORT).show()
+            // Request permission
+            startLocationPermissionRequest()
 
-                // Request permission
-                startLocationPermissionRequest()
-
-            } else {
-                // No explanation needed, we can request the permission.
-                startLocationPermissionRequest()
-
-                // REQUEST_PERMISSIONS_REQUEST_CODE is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
-            }
         } else {
-            // Permission has already been granted
+            // No explanation needed, we can request the permission.
+            startLocationPermissionRequest()
+
+            // REQUEST_PERMISSIONS_REQUEST_CODE is an
+            // app-defined int constant. The callback method gets the
+            // result of the request.
         }
+
     }
 
 
@@ -158,6 +170,7 @@ class TabOverview : Fragment() {
                     // location-related task you need to do.
 
                     //TODO getLocation()
+                    getLastKnownLocation()
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
