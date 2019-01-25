@@ -3,6 +3,7 @@ package ch.ti8m.gol.bbw_route.presentation.fragments
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
@@ -13,6 +14,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import ch.ti8m.gol.bbw_route.databinding.FragmentOverviewBinding
 import ch.ti8m.gol.bbw_route.domain.entity.openweathermap.WeatherForecast
+import ch.ti8m.gol.bbw_route.geo.LocationService
+import ch.ti8m.gol.bbw_route.geo.impl.LocationServiceImpl
 import ch.ti8m.gol.bbw_route.remote.WeatherDataService
 import ch.ti8m.gol.bbw_route.remote.WeatherRetrofitInstance
 import retrofit2.Call
@@ -24,6 +27,8 @@ class TabOverview : Fragment() {
 
     private val REQUEST_PERMISSIONS_REQUEST_CODE = 34
     lateinit var binding: FragmentOverviewBinding
+    private lateinit var location: Location
+    private lateinit var locationService: LocationService
 
 
     companion object {
@@ -41,6 +46,10 @@ class TabOverview : Fragment() {
         super.onCreate(savedInstanceState)
 
         checkPermissions()
+        locationService = LocationServiceImpl(activity as Activity)
+
+        location = locationService.getLastKnownLocation()
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -61,7 +70,7 @@ class TabOverview : Fragment() {
             WeatherRetrofitInstance.getRetrofitInstance().create(WeatherDataService::class.java)
 
         //TODO take lat/lon from locationService
-        val call = weatherDataService.getWeatherForecast("47.349640", "8.719500")
+        val call = weatherDataService.getWeatherForecast(location.latitude.toString(), location.longitude.toString())
 
         call.enqueue(object : Callback<WeatherForecast> {
             override fun onResponse(call: Call<WeatherForecast>, response: Response<WeatherForecast>) {
