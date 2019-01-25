@@ -1,13 +1,13 @@
-package ch.ti8m.gol.bbw_route.remote
+package ch.ti8m.gol.bbw_route.remote.search
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 
-class WeatherRetrofitInstance {
+class SearchRetrofitInstance {
     companion object {
         private var retrofit: Retrofit? = null
-        private val BASE_URL = "http://api.openweathermap.org/"
+        private val BASE_URL = "https://fahrplan.search.ch/api/"
 
         /**
          * Create an instance of Retrofit object

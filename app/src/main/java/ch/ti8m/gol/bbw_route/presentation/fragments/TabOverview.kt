@@ -13,8 +13,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import ch.ti8m.gol.bbw_route.databinding.FragmentOverviewBinding
 import ch.ti8m.gol.bbw_route.domain.entity.openweathermap.WeatherForecast
-import ch.ti8m.gol.bbw_route.remote.WeatherDataService
-import ch.ti8m.gol.bbw_route.remote.WeatherRetrofitInstance
+import ch.ti8m.gol.bbw_route.remote.weather.WeatherDataService
+import ch.ti8m.gol.bbw_route.remote.weather.WeatherRetrofitInstance
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import retrofit2.Call
