@@ -71,9 +71,8 @@ class TabOverview : Fragment() {
         return binding.root
     }
 
-    private fun handleCoordinates(lat: String, lon: String){
+    private fun handleCoordinates(lat: String, lon: String) {
         getWeatherForecast(lat, lon)
-        //TODO getCurrentAddress
         getCurrentAddress(lat, lon)
 
     }
@@ -96,22 +95,27 @@ class TabOverview : Fragment() {
         })
     }
 
-    private fun getCurrentAddress(lat: String, lon: String){
+    private fun getCurrentAddress(lat: String, lon: String) {
         //Create handle for RetrofitInstance interface
-        val closeStationsService:CloseStationsService = SearchRetrofitInstance.getRetrofitInstance().create(CloseStationsService::class.java)
+        val closeStationsService: CloseStationsService =
+            SearchRetrofitInstance.getRetrofitInstance().create(CloseStationsService::class.java)
         val call = closeStationsService.getCloseStations("$lat,$lon")
 
-        call.enqueue(object : Callback<List<CloseStation>>{
+        call.enqueue(object : Callback<List<CloseStation>> {
             override fun onResponse(call: Call<List<CloseStation>>, response: Response<List<CloseStation>>) {
-
+                val currentAddress = response.body()!![0].label
+                getNextConnections(currentAddress)
             }
 
             override fun onFailure(call: Call<List<CloseStation>>, t: Throwable) {
-
+                Toast.makeText(this@TabOverview.context, "CloseStation Callback went wrong", Toast.LENGTH_SHORT).show()
             }
-
         })
 
+    }
+
+    private fun getNextConnections(address: String) {
+        //TODO
     }
 
     private fun initWeatherViews(weatherForecast: WeatherForecast) {
