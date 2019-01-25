@@ -17,6 +17,8 @@ class LocationServiceImpl(activity: Activity) : LocationService {
     override fun getLastKnownLocation(): Location {
         fusedLocationProviderClient.lastLocation.addOnSuccessListener {
             myLocation = it
+        }.addOnFailureListener {
+
         }
         return myLocation
     }
