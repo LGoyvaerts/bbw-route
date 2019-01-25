@@ -12,6 +12,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import ch.ti8m.gol.bbw_route.databinding.FragmentOverviewBinding
+import ch.ti8m.gol.bbw_route.domain.entity.openweathermap.WeatherForecast
+import ch.ti8m.gol.bbw_route.remote.WeatherDataService
+import ch.ti8m.gol.bbw_route.remote.WeatherRetrofitInstance
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 class TabOverview : Fragment() {
@@ -44,7 +50,49 @@ class TabOverview : Fragment() {
         //TODO init RecyclerView DataAdapter
         //TODO initViews()
 
+        getWeatherForecast()
+
         return binding.root
+    }
+
+    private fun getWeatherForecast() {
+        //Create handle for RetrofitInstance interface
+        val weatherDataService: WeatherDataService =
+            WeatherRetrofitInstance.getRetrofitInstance().create(WeatherDataService::class.java)
+
+        //TODO take lat/lon from locationService
+        val call = weatherDataService.getWeatherForecast("47.349640", "8.719500")
+
+        call.enqueue(object : Callback<WeatherForecast> {
+            override fun onResponse(call: Call<WeatherForecast>, response: Response<WeatherForecast>) {
+                initWeatherViews(response.body()!!)
+            }
+
+            override fun onFailure(call: Call<WeatherForecast>, t: Throwable) {
+                Toast.makeText(this@TabOverview.context, "WeatherCallback went wrong", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun initWeatherViews(weatherForecast: WeatherForecast) {
+        binding.overviewWeatherLocationTextview.text = weatherForecast.locationName
+
+        val celsiusTemp = weatherForecast.mainInformation.temp - 273.15
+        val celsiusTempRounded = "%.2f".format(celsiusTemp)
+        val celsiusString = "$celsiusTempRounded °C"
+        binding.overviewWeatherTemperatureTextview.text = celsiusString
+
+        val condition = "Condition: ${weatherForecast.weather[0].conditionDescription}"
+        binding.overviewWeatherConditionTextview.text = condition
+
+        val humidity = "Humidity: ${weatherForecast.mainInformation.humidity}%"
+        binding.overviewWeatherHumidityTextview.text = humidity
+
+        val lat = "Latitude: ${weatherForecast.coordinates.lat}"
+        binding.overviewWeatherLatTextview.text = lat
+
+        val lon = "Longitude: ${weatherForecast.coordinates.lon}"
+        binding.overviewWeatherLonTextview.text = lon
     }
 
     private fun checkPermissions() {
