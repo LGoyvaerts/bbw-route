@@ -1,91 +1,69 @@
 package ch.ti8m.gol.bbw_route.presentation
 
-import android.Manifest
-import android.content.pm.PackageManager
+import android.databinding.DataBindingUtil
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
+import android.support.design.widget.TabLayout
+import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentManager
+import android.support.v4.app.FragmentPagerAdapter
+import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
-import android.widget.Toast
+import android.view.LayoutInflater
+import android.widget.TextView
 import ch.ti8m.gol.bbw_route.R
+import ch.ti8m.gol.bbw_route.databinding.ActivityMainBinding
+import ch.ti8m.gol.bbw_route.presentation.fragments.TabHistory
+import ch.ti8m.gol.bbw_route.presentation.fragments.TabOverview
 
 class MainActivity : AppCompatActivity() {
 
-    private val REQUEST_PERMISSIONS_REQUEST_CODE = 34
+    lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        checkPermissions()
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+
+        val mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
+
+        val mViewPager: ViewPager = binding.container
+        mViewPager.adapter = mSectionsPagerAdapter
+        mViewPager.offscreenPageLimit = 2
+
+        mViewPager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(binding.tablayoutMain))
+        binding.tablayoutMain.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(mViewPager))
+
+        createTabIcons()
     }
 
-    private fun checkPermissions() {
-        // Here, activity is the current activity
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-
-            // Permission is not granted
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    this,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                )
-            ) {
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-                Toast.makeText(this, "Permission is needed", Toast.LENGTH_SHORT).show()
-
-                // Request permission
-                startLocationPermissionRequest()
-
-            } else {
-                // No explanation needed, we can request the permission.
-                startLocationPermissionRequest()
-
-                // REQUEST_PERMISSIONS_REQUEST_CODE is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
-            }
-        } else {
-            // Permission has already been granted
-        }
+    private fun createTabIcons() {
+        binding.tablayoutMain.getTabAt(0)?.customView = createTab(R.string.title_overview, R.drawable.ic_location)
+        binding.tablayoutMain.getTabAt(1)?.customView = createTab(R.string.title_history, R.drawable.ic_history)
     }
 
-
-    private fun startLocationPermissionRequest() {
-        ActivityCompat.requestPermissions(
-            this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-            REQUEST_PERMISSIONS_REQUEST_CODE
-        )
+    private fun createTab(tabTitle: Int, icon: Int): TextView {
+        val temp = LayoutInflater.from(this).inflate(R.layout.custom_tab, null) as TextView
+        temp.setText(tabTitle)
+        val intrinsic_bounds = 0
+        temp.setCompoundDrawablesWithIntrinsicBounds(intrinsic_bounds, icon, intrinsic_bounds, intrinsic_bounds)
+        return temp
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        when (requestCode) {
-            REQUEST_PERMISSIONS_REQUEST_CODE -> {
-                // If request is cancelled, the result arrays are empty.
-                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    // permission was granted, yay! Do the
-                    // location-related task you need to do.
+    class SectionsPagerAdapter(fm: FragmentManager?) : FragmentPagerAdapter(fm) {
 
-                    //TODO getLocation()
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                }
-                return
-            }
-
-            // Add other 'when' lines to check for other
-            // permissions this app might request.
-            else -> {
-                // Ignore all other requests.
+        override fun getItem(position: Int): Fragment? {
+            when (position) {
+                0 -> return TabOverview.newInstance()
+                1 -> return TabHistory.newInstance()
+                else -> return null
             }
         }
+
+        override fun getCount(): Int {
+            return 2
+        }
+
     }
+
 }
