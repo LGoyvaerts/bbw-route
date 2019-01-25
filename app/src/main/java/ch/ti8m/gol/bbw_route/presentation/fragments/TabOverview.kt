@@ -13,6 +13,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import ch.ti8m.gol.bbw_route.databinding.FragmentOverviewBinding
 import ch.ti8m.gol.bbw_route.domain.entity.openweathermap.WeatherForecast
+import ch.ti8m.gol.bbw_route.domain.entity.search.CloseStation
+import ch.ti8m.gol.bbw_route.remote.search.CloseStationsService
+import ch.ti8m.gol.bbw_route.remote.search.SearchRetrofitInstance
 import ch.ti8m.gol.bbw_route.remote.weather.WeatherDataService
 import ch.ti8m.gol.bbw_route.remote.weather.WeatherRetrofitInstance
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -64,9 +67,15 @@ class TabOverview : Fragment() {
         binding = FragmentOverviewBinding.inflate(inflater, container, false)
 
         //TODO init RecyclerView DataAdapter
-        //TODO initViews()
 
         return binding.root
+    }
+
+    private fun handleCoordinates(lat: String, lon: String){
+        getWeatherForecast(lat, lon)
+        //TODO getCurrentAddress
+        getCurrentAddress(lat, lon)
+
     }
 
     private fun getWeatherForecast(lat: String, lon: String) {
@@ -74,7 +83,6 @@ class TabOverview : Fragment() {
         val weatherDataService: WeatherDataService =
             WeatherRetrofitInstance.getRetrofitInstance().create(WeatherDataService::class.java)
 
-        //TODO take lat/lon from locationService
         val call = weatherDataService.getWeatherForecast(lat, lon)
 
         call.enqueue(object : Callback<WeatherForecast> {
@@ -86,6 +94,24 @@ class TabOverview : Fragment() {
                 Toast.makeText(this@TabOverview.context, "WeatherCallback went wrong", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private fun getCurrentAddress(lat: String, lon: String){
+        //Create handle for RetrofitInstance interface
+        val closeStationsService:CloseStationsService = SearchRetrofitInstance.getRetrofitInstance().create(CloseStationsService::class.java)
+        val call = closeStationsService.getCloseStations("$lat,$lon")
+
+        call.enqueue(object : Callback<List<CloseStation>>{
+            override fun onResponse(call: Call<List<CloseStation>>, response: Response<List<CloseStation>>) {
+
+            }
+
+            override fun onFailure(call: Call<List<CloseStation>>, t: Throwable) {
+
+            }
+
+        })
+
     }
 
     private fun initWeatherViews(weatherForecast: WeatherForecast) {
@@ -113,7 +139,7 @@ class TabOverview : Fragment() {
     private fun getLastKnownLocation() {
         fusedLocationProviderClient.lastLocation.addOnCompleteListener {
             if (it.isSuccessful && it.result != null) {
-                getWeatherForecast(it.result!!.latitude.toString(), it.result!!.longitude.toString())
+                handleCoordinates(it.result!!.latitude.toString(), it.result!!.longitude.toString())
             }
         }.addOnFailureListener {
             Timber.e(it)
