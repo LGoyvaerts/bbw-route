@@ -217,7 +217,6 @@ class TabOverview : Fragment() {
                     // permission was granted, yay! Do the
                     // location-related task you need to do.
 
-                    //TODO getLocation()
                     getLastKnownLocation()
                 } else {
                     // permission denied, boo! Disable the
