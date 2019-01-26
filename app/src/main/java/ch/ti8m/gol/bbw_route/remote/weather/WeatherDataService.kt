@@ -1,4 +1,4 @@
-package ch.ti8m.gol.bbw_route.remote
+package ch.ti8m.gol.bbw_route.remote.weather
 
 import ch.ti8m.gol.bbw_route.domain.entity.openweathermap.WeatherForecast
 import retrofit2.Call

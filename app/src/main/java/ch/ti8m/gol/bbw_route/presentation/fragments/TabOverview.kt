@@ -7,26 +7,38 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
+import android.support.v7.widget.DividerItemDecoration
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import ch.ti8m.gol.bbw_route.data.ConnectionsDataAdapter
 import ch.ti8m.gol.bbw_route.databinding.FragmentOverviewBinding
+import ch.ti8m.gol.bbw_route.domain.entity.opendata.ConnectionsCall
 import ch.ti8m.gol.bbw_route.domain.entity.openweathermap.WeatherForecast
-import ch.ti8m.gol.bbw_route.remote.WeatherDataService
-import ch.ti8m.gol.bbw_route.remote.WeatherRetrofitInstance
+import ch.ti8m.gol.bbw_route.domain.entity.search.CloseStation
+import ch.ti8m.gol.bbw_route.remote.connections.ConnectionsDataService
+import ch.ti8m.gol.bbw_route.remote.connections.ConnectionsRetrofitInstance
+import ch.ti8m.gol.bbw_route.remote.search.CloseStationsService
+import ch.ti8m.gol.bbw_route.remote.search.SearchRetrofitInstance
+import ch.ti8m.gol.bbw_route.remote.weather.WeatherDataService
+import ch.ti8m.gol.bbw_route.remote.weather.WeatherRetrofitInstance
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import timber.log.Timber
+import java.util.*
 
 
 class TabOverview : Fragment() {
 
     private val REQUEST_PERMISSIONS_REQUEST_CODE = 99
     lateinit var binding: FragmentOverviewBinding
+    lateinit var connectionsDataAdapter: ConnectionsDataAdapter
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
 
@@ -63,10 +75,26 @@ class TabOverview : Fragment() {
         super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentOverviewBinding.inflate(inflater, container, false)
 
-        //TODO init RecyclerView DataAdapter
-        //TODO initViews()
+        connectionsDataAdapter = ConnectionsDataAdapter(Collections.emptyList())
 
         return binding.root
+    }
+
+    private fun handleCoordinates(lat: String, lon: String) {
+        initRecyclerView()
+        getWeatherForecast(lat, lon)
+        getCurrentAddress(lat, lon)
+
+    }
+
+    private fun initRecyclerView() {
+        val recyclerView = binding.overviewConnectionsRecyclerview
+        recyclerView.setHasFixedSize(true)
+        val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(context)
+        recyclerView.layoutManager = layoutManager
+
+        recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+        recyclerView.adapter = connectionsDataAdapter
     }
 
     private fun getWeatherForecast(lat: String, lon: String) {
@@ -74,7 +102,6 @@ class TabOverview : Fragment() {
         val weatherDataService: WeatherDataService =
             WeatherRetrofitInstance.getRetrofitInstance().create(WeatherDataService::class.java)
 
-        //TODO take lat/lon from locationService
         val call = weatherDataService.getWeatherForecast(lat, lon)
 
         call.enqueue(object : Callback<WeatherForecast> {
@@ -84,6 +111,43 @@ class TabOverview : Fragment() {
 
             override fun onFailure(call: Call<WeatherForecast>, t: Throwable) {
                 Toast.makeText(this@TabOverview.context, "WeatherCallback went wrong", Toast.LENGTH_SHORT).show()
+                Timber.e("Weather Callback went wrong: $t")
+            }
+        })
+    }
+
+    private fun getCurrentAddress(lat: String, lon: String) {
+        //Create handle for RetrofitInstance interface
+        val closeStationsService: CloseStationsService =
+            SearchRetrofitInstance.getRetrofitInstance().create(CloseStationsService::class.java)
+        val call = closeStationsService.getCloseStations("$lat,$lon")
+
+        call.enqueue(object : Callback<List<CloseStation>> {
+            override fun onResponse(call: Call<List<CloseStation>>, response: Response<List<CloseStation>>) {
+                val currentAddress = response.body()!![0].label
+                getNextConnections(currentAddress)
+            }
+
+            override fun onFailure(call: Call<List<CloseStation>>, t: Throwable) {
+                Toast.makeText(this@TabOverview.context, "CloseStation Callback went wrong", Toast.LENGTH_SHORT).show()
+            }
+        })
+
+    }
+
+    private fun getNextConnections(address: String) {
+        val connectionsDataService: ConnectionsDataService =
+            ConnectionsRetrofitInstance.getRetrofitInstance().create(ConnectionsDataService::class.java)
+        val call = connectionsDataService.getNextConnections(address)
+
+        call.enqueue(object : Callback<ConnectionsCall> {
+            override fun onResponse(call: Call<ConnectionsCall>, response: Response<ConnectionsCall>) {
+                val connectionsCall = response.body()!!
+                connectionsDataAdapter.setConnections(connectionsCall.connections!!)
+            }
+
+            override fun onFailure(call: Call<ConnectionsCall>, t: Throwable) {
+                Toast.makeText(this@TabOverview.context, "ConnectionsCall Callback went wrong", Toast.LENGTH_SHORT).show()
             }
         })
     }
@@ -113,7 +177,7 @@ class TabOverview : Fragment() {
     private fun getLastKnownLocation() {
         fusedLocationProviderClient.lastLocation.addOnCompleteListener {
             if (it.isSuccessful && it.result != null) {
-                getWeatherForecast(it.result!!.latitude.toString(), it.result!!.longitude.toString())
+                handleCoordinates(it.result!!.latitude.toString(), it.result!!.longitude.toString())
             }
         }.addOnFailureListener {
             Timber.e(it)
@@ -169,7 +233,6 @@ class TabOverview : Fragment() {
                     // permission was granted, yay! Do the
                     // location-related task you need to do.
 
-                    //TODO getLocation()
                     getLastKnownLocation()
                 } else {
                     // permission denied, boo! Disable the
