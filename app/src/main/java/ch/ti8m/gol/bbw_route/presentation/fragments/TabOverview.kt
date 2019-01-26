@@ -12,8 +12,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import ch.ti8m.gol.bbw_route.databinding.FragmentOverviewBinding
+import ch.ti8m.gol.bbw_route.domain.entity.opendata.ConnectionsCall
 import ch.ti8m.gol.bbw_route.domain.entity.openweathermap.WeatherForecast
 import ch.ti8m.gol.bbw_route.domain.entity.search.CloseStation
+import ch.ti8m.gol.bbw_route.remote.connections.ConnectionsDataService
+import ch.ti8m.gol.bbw_route.remote.connections.ConnectionsRetrofitInstance
 import ch.ti8m.gol.bbw_route.remote.search.CloseStationsService
 import ch.ti8m.gol.bbw_route.remote.search.SearchRetrofitInstance
 import ch.ti8m.gol.bbw_route.remote.weather.WeatherDataService
@@ -91,6 +94,7 @@ class TabOverview : Fragment() {
 
             override fun onFailure(call: Call<WeatherForecast>, t: Throwable) {
                 Toast.makeText(this@TabOverview.context, "WeatherCallback went wrong", Toast.LENGTH_SHORT).show()
+                Timber.e("Weather Callback went wrong: $t")
             }
         })
     }
@@ -116,6 +120,20 @@ class TabOverview : Fragment() {
 
     private fun getNextConnections(address: String) {
         //TODO
+        val connectionsDataService: ConnectionsDataService =
+            ConnectionsRetrofitInstance.getRetrofitInstance().create(ConnectionsDataService::class.java)
+        val call = connectionsDataService.getNextConnections(address)
+
+        call.enqueue(object : Callback<ConnectionsCall>{
+            override fun onResponse(call: Call<ConnectionsCall>, response: Response<ConnectionsCall>) {
+                val connectionsCall = response.body()!!
+                Timber.d("Connections Call $connectionsCall")
+            }
+
+            override fun onFailure(call: Call<ConnectionsCall>, t: Throwable) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+        })
     }
 
     private fun initWeatherViews(weatherForecast: WeatherForecast) {
