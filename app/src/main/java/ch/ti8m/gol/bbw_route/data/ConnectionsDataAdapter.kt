@@ -13,7 +13,7 @@ import java.util.*
 class ConnectionsDataAdapter(private var connections: List<Connection>) :
     RecyclerView.Adapter<ConnectionsDataAdapter.ViewHolder>() {
 
-    fun setConnections(connections: List<Connection>){
+    fun setConnections(connections: List<Connection>) {
         this.connections = connections
         notifyDataSetChanged()
     }
@@ -29,7 +29,7 @@ class ConnectionsDataAdapter(private var connections: List<Connection>) :
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val currentConnection = connections[position]
-        val fromText = "From: ${currentConnection.from!!.station.name}"
+        val fromText = "From: ${currentConnection.sections[1].journey!!.passList[0].station.name}"
         viewHolder.connection_from.text = fromText
 
         val toText = "To: ${currentConnection.to!!.station.name}"
@@ -37,12 +37,12 @@ class ConnectionsDataAdapter(private var connections: List<Connection>) :
 
         val localDateFormat = SimpleDateFormat("HH:mm:ss", Locale.GERMANY)
 
-        val starttimeDate = DateUtils.parse(currentConnection.from.departure!!)
+        val starttimeDate = DateUtils.parse(currentConnection.sections[1].journey!!.passList[0].departure!!)
         val starttime = localDateFormat.format(starttimeDate)
         val starttimeText = "Start: $starttime"
         viewHolder.connection_starttime.text = starttimeText
 
-        val endtimeDate = DateUtils.parse(currentConnection.from.departure)
+        val endtimeDate = DateUtils.parse(currentConnection.to.arrival!!)
         val endtime = localDateFormat.format(endtimeDate)
         val endtimeText = "Arrival: $endtime"
         viewHolder.connection_endtime.text = endtimeText

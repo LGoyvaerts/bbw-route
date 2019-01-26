@@ -7,10 +7,14 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
+import android.support.v7.widget.DividerItemDecoration
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import ch.ti8m.gol.bbw_route.data.ConnectionsDataAdapter
 import ch.ti8m.gol.bbw_route.databinding.FragmentOverviewBinding
 import ch.ti8m.gol.bbw_route.domain.entity.opendata.ConnectionsCall
 import ch.ti8m.gol.bbw_route.domain.entity.openweathermap.WeatherForecast
@@ -27,12 +31,14 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import timber.log.Timber
+import java.util.*
 
 
 class TabOverview : Fragment() {
 
     private val REQUEST_PERMISSIONS_REQUEST_CODE = 99
     lateinit var binding: FragmentOverviewBinding
+    lateinit var connectionsDataAdapter: ConnectionsDataAdapter
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
 
@@ -69,15 +75,26 @@ class TabOverview : Fragment() {
         super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentOverviewBinding.inflate(inflater, container, false)
 
-        //TODO init RecyclerView DataAdapter
+        connectionsDataAdapter = ConnectionsDataAdapter(Collections.emptyList())
 
         return binding.root
     }
 
     private fun handleCoordinates(lat: String, lon: String) {
+        initRecyclerView()
         getWeatherForecast(lat, lon)
         getCurrentAddress(lat, lon)
 
+    }
+
+    private fun initRecyclerView() {
+        val recyclerView = binding.overviewConnectionsRecyclerview
+        recyclerView.setHasFixedSize(true)
+        val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(context)
+        recyclerView.layoutManager = layoutManager
+
+        recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+        recyclerView.adapter = connectionsDataAdapter
     }
 
     private fun getWeatherForecast(lat: String, lon: String) {
@@ -119,19 +136,18 @@ class TabOverview : Fragment() {
     }
 
     private fun getNextConnections(address: String) {
-        //TODO
         val connectionsDataService: ConnectionsDataService =
             ConnectionsRetrofitInstance.getRetrofitInstance().create(ConnectionsDataService::class.java)
         val call = connectionsDataService.getNextConnections(address)
 
-        call.enqueue(object : Callback<ConnectionsCall>{
+        call.enqueue(object : Callback<ConnectionsCall> {
             override fun onResponse(call: Call<ConnectionsCall>, response: Response<ConnectionsCall>) {
                 val connectionsCall = response.body()!!
-                Timber.d("Connections Call $connectionsCall")
+                connectionsDataAdapter.setConnections(connectionsCall.connections!!)
             }
 
             override fun onFailure(call: Call<ConnectionsCall>, t: Throwable) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                Toast.makeText(this@TabOverview.context, "ConnectionsCall Callback went wrong", Toast.LENGTH_SHORT).show()
             }
         })
     }
