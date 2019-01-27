@@ -27,6 +27,7 @@ import ch.ti8m.gol.bbw_route.remote.weather.WeatherDataService
 import ch.ti8m.gol.bbw_route.remote.weather.WeatherRetrofitInstance
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import org.apache.commons.text.WordUtils
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -147,7 +148,8 @@ class TabOverview : Fragment() {
             }
 
             override fun onFailure(call: Call<ConnectionsCall>, t: Throwable) {
-                Toast.makeText(this@TabOverview.context, "ConnectionsCall Callback went wrong", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@TabOverview.context, "ConnectionsCall Callback went wrong", Toast.LENGTH_SHORT)
+                    .show()
             }
         })
     }
@@ -160,7 +162,8 @@ class TabOverview : Fragment() {
         val celsiusString = "$celsiusTempRounded °C"
         binding.overviewWeatherTemperatureTextview.text = celsiusString
 
-        val condition = "Condition: ${weatherForecast.weather[0].conditionDescription}"
+        val conditionTextBetterReadable = WordUtils.capitalizeFully(weatherForecast.weather[0].conditionDescription)
+        val condition = "Condition: $conditionTextBetterReadable"
         binding.overviewWeatherConditionTextview.text = condition
 
         val humidity = "Humidity: ${weatherForecast.mainInformation.humidity}%"
