@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="144dp"
+                                             android:id="@+id/section_card_row_layout">
+
+    <TextView
+            android:text="Dep"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/section_departure_time_textview"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="16dp"
+            android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+
+    <TextView
+            android:text="Location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/section_departure_name_textview"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="96dp"
+            android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+
+    <TextView
+            android:text="Platform"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/section_departure_platform_textview"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toTopOf="parent"
+            android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+
+    <TextView
+            android:text="Type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/section_movement_type_textview"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="96dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/section_departure_name_textview"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/section_arrival_name_textview"
+            android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+
+    <TextView
+            android:text="Arr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/section_arrival_time_textview"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="16dp"
+            android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+
+    <TextView
+            android:text="Location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/section_arrival_name_textview"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="96dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+
+    <TextView
+            android:text="Platform"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/section_arrival_platform_textview"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+</android.support.constraint.ConstraintLayout>
