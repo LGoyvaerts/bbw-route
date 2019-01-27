@@ -177,7 +177,7 @@ class TabOverview : Fragment() {
     }
 
     private fun getWindDirection(direction: Double): String {
-        var temp = ""
+        var temp = "Unknown"
         if (direction >= 337.5 || direction < 22.5) {
             temp = "N"
         } else if (direction >= 22.5 && direction < 67.5) {
@@ -195,6 +195,7 @@ class TabOverview : Fragment() {
         } else if (direction >= 292.5 && direction < 300) {
             temp = "NW"
         }
+        return temp
     }
 
     @SuppressLint("MissingPermission")
