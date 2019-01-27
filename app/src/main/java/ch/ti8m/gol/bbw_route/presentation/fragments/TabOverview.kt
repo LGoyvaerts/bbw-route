@@ -174,6 +174,12 @@ class TabOverview : Fragment() {
 
         val lon = "Longitude: ${weatherForecast.coordinates.lon}"
         binding.overviewWeatherLonTextview.text = lon
+
+        val windDirection = "Wind-Direction: ${getWindDirection(weatherForecast.wind.direction)}"
+        binding.overviewWeatherWindDirectionTextview.text = windDirection
+
+        val windSpeed = "Wind-Speed: ${weatherForecast.wind.speed} m/s"
+        binding.overviewWeatherWindSpeedTextview.text = windSpeed
     }
 
     private fun getWindDirection(direction: Double): String {
