@@ -24,7 +24,7 @@
                 android:id="@+id/connection_card_row_from_textview"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+                />
 
         <TextView
                 android:text="TextView"
@@ -65,7 +65,7 @@
                 android:id="@+id/connection_card_row_to_textview"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:textAppearance="@android:style/TextAppearance.Material.Medium"/>
+                />
 
         <TextView
                 android:text="TextView"
