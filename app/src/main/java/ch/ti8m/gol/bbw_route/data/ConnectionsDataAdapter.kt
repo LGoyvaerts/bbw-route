@@ -53,7 +53,8 @@ class ConnectionsDataAdapter(private var connections: List<Connection>) :
         val durationText = "Duration: ${DateUtils.formatDuration(currentConnection.duration)}"
         viewHolder.connection_duration.text = durationText
 
-        val transfersText = "Transfers: ${currentConnection.products.size}"
+        val transfers = currentConnection.products.size - 1
+        val transfersText = "Transfers: $transfers"
         viewHolder.connection_transfers.text = transfersText
 
         val gson = Gson()

@@ -27,6 +27,7 @@ import ch.ti8m.gol.bbw_route.remote.weather.WeatherDataService
 import ch.ti8m.gol.bbw_route.remote.weather.WeatherRetrofitInstance
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import org.apache.commons.text.WordUtils
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -147,7 +148,8 @@ class TabOverview : Fragment() {
             }
 
             override fun onFailure(call: Call<ConnectionsCall>, t: Throwable) {
-                Toast.makeText(this@TabOverview.context, "ConnectionsCall Callback went wrong", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@TabOverview.context, "ConnectionsCall Callback went wrong", Toast.LENGTH_SHORT)
+                    .show()
             }
         })
     }
@@ -160,7 +162,8 @@ class TabOverview : Fragment() {
         val celsiusString = "$celsiusTempRounded °C"
         binding.overviewWeatherTemperatureTextview.text = celsiusString
 
-        val condition = "Condition: ${weatherForecast.weather[0].conditionDescription}"
+        val conditionTextBetterReadable = WordUtils.capitalizeFully(weatherForecast.weather[0].conditionDescription)
+        val condition = "Condition: $conditionTextBetterReadable"
         binding.overviewWeatherConditionTextview.text = condition
 
         val humidity = "Humidity: ${weatherForecast.mainInformation.humidity}%"
@@ -171,6 +174,34 @@ class TabOverview : Fragment() {
 
         val lon = "Longitude: ${weatherForecast.coordinates.lon}"
         binding.overviewWeatherLonTextview.text = lon
+
+        val windDirection = "Wind-Direction: ${getWindDirection(weatherForecast.wind.direction)}"
+        binding.overviewWeatherWindDirectionTextview.text = windDirection
+
+        val windSpeed = "Wind-Speed: ${weatherForecast.wind.speed} m/s"
+        binding.overviewWeatherWindSpeedTextview.text = windSpeed
+    }
+
+    private fun getWindDirection(direction: Double): String {
+        var temp = "Unknown"
+        if (direction >= 337.5 || direction < 22.5) {
+            temp = "N"
+        } else if (direction >= 22.5 && direction < 67.5) {
+            temp = "NE"
+        } else if (direction >= 67.5 && direction < 112.5) {
+            temp = "E"
+        } else if (direction >= 112.5 && direction < 157.5) {
+            temp = "SE"
+        } else if (direction >= 157.5 && direction < 202.5) {
+            temp = "S"
+        } else if (direction >= 202.5 && direction < 247.5) {
+            temp = "SW"
+        } else if (direction >= 247.5 && direction < 292.5) {
+            temp = "W"
+        } else if (direction >= 292.5 && direction < 300) {
+            temp = "NW"
+        }
+        return temp
     }
 
     @SuppressLint("MissingPermission")
