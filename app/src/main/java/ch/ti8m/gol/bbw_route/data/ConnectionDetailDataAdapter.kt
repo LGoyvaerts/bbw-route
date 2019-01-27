@@ -30,7 +30,7 @@ class ConnectionDetailDataAdapter(private var sections: List<Section>) :
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val currentSection: Section = sections[position]
-        val localDateFormat = SimpleDateFormat("HH:mm:ss", Locale.GERMANY)
+        val localDateFormat = SimpleDateFormat("HH:mm", Locale.GERMANY)
 
         val departureTimeDate = DateUtils.parse(currentSection.departure.departure!!)
         val departureTime = localDateFormat.format(departureTimeDate)

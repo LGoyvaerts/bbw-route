@@ -1,5 +1,6 @@
 package ch.ti8m.gol.bbw_route.data
 
+import android.support.constraint.ConstraintLayout
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +8,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import ch.ti8m.gol.bbw_route.R
 import ch.ti8m.gol.bbw_route.domain.entity.opendata.Connection
+import ch.ti8m.gol.bbw_route.presentation.ConnectionDetailActivity
+import com.google.gson.Gson
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -52,6 +55,12 @@ class ConnectionsDataAdapter(private var connections: List<Connection>) :
 
         val transfersText = "Transfers: ${currentConnection.products.size}"
         viewHolder.connection_transfers.text = transfersText
+
+        val gson = Gson()
+        viewHolder.connection_layout.setOnClickListener {
+            val connectionString = gson.toJson(currentConnection)
+            ConnectionDetailActivity.start(viewHolder.connection_layout.context, connectionString)
+        }
     }
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -62,6 +71,7 @@ class ConnectionsDataAdapter(private var connections: List<Connection>) :
         internal val connection_endtime: TextView
         internal val connection_duration: TextView
         internal val connection_transfers: TextView
+        internal val connection_layout: ConstraintLayout
 
 
         init {
@@ -71,6 +81,7 @@ class ConnectionsDataAdapter(private var connections: List<Connection>) :
             connection_endtime = view.findViewById(R.id.connection_card_row_endtime_textview)
             connection_duration = view.findViewById(R.id.connection_card_row_duration_textview)
             connection_transfers = view.findViewById(R.id.connection_card_row_transfers_textview)
+            connection_layout = view.findViewById(R.id.connection_card_row_layout)
         }
     }
 }
