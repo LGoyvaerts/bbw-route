@@ -176,6 +176,27 @@ class TabOverview : Fragment() {
         binding.overviewWeatherLonTextview.text = lon
     }
 
+    private fun getWindDirection(direction: Double): String {
+        var temp = ""
+        if (direction >= 337.5 || direction < 22.5) {
+            temp = "N"
+        } else if (direction >= 22.5 && direction < 67.5) {
+            temp = "NE"
+        } else if (direction >= 67.5 && direction < 112.5) {
+            temp = "E"
+        } else if (direction >= 112.5 && direction < 157.5) {
+            temp = "SE"
+        } else if (direction >= 157.5 && direction < 202.5) {
+            temp = "S"
+        } else if (direction >= 202.5 && direction < 247.5) {
+            temp = "SW"
+        } else if (direction >= 247.5 && direction < 292.5) {
+            temp = "W"
+        } else if (direction >= 292.5 && direction < 300) {
+            temp = "NW"
+        }
+    }
+
     @SuppressLint("MissingPermission")
     private fun getLastKnownLocation() {
         fusedLocationProviderClient.lastLocation.addOnCompleteListener {
