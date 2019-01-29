@@ -12,17 +12,19 @@ import android.view.View
 import android.view.ViewGroup
 import ch.ti8m.gol.bbw_route.data.SavedLocationDataAdapter
 import ch.ti8m.gol.bbw_route.databinding.FragmentHistoryBinding
-import ch.ti8m.gol.bbw_route.persistence.repository.SavedLocationRepository
-import ch.ti8m.gol.bbw_route.presentation.App
+import ch.ti8m.gol.bbw_route.domain.abstraction.fragments.history.HistoryPresenter
+import ch.ti8m.gol.bbw_route.domain.abstraction.fragments.history.HistoryPresenterImpl
+import ch.ti8m.gol.bbw_route.domain.abstraction.fragments.history.HistoryView
+import ch.ti8m.gol.bbw_route.domain.entity.SavedLocation
 import java.util.*
 
 
-class TabHistory : Fragment(), SwipeRefreshLayout.OnRefreshListener {
+class TabHistory : Fragment(), SwipeRefreshLayout.OnRefreshListener, HistoryView {
 
     lateinit var binding: FragmentHistoryBinding
     lateinit var savedLocationDataAdapter: SavedLocationDataAdapter
-    private lateinit var savedLocationRepository: SavedLocationRepository
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private lateinit var historyPresenter: HistoryPresenter
 
     companion object {
 
@@ -38,7 +40,8 @@ class TabHistory : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        savedLocationRepository = App.savedLocationRepository
+        historyPresenter = HistoryPresenterImpl(this)
+        historyPresenter.initRepository()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -50,6 +53,10 @@ class TabHistory : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         initViews()
 
         return binding.root
+    }
+
+    override fun onLoadSavedLocations(savedLocations: List<SavedLocation>) {
+        savedLocationDataAdapter.setSavedLocations(savedLocations)
     }
 
     private fun initViews() {
@@ -70,26 +77,17 @@ class TabHistory : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         swipeRefreshLayout = binding.historyRefreshLayout
         swipeRefreshLayout.setOnRefreshListener(this)
         swipeRefreshLayout.post {
-            run{
+            run {
                 dispatchRefresh()
             }
         }
 
     }
 
-    private fun loadSavedLocations() {
-        val savedLocations = savedLocationRepository.getSavedLocations()
-        if (!savedLocations.isEmpty()) {
-            savedLocationDataAdapter.setSavedLocations(savedLocations)
-        } else {
-            savedLocationDataAdapter.setSavedLocations(Collections.emptyList())
-        }
-    }
-
     private fun dispatchRefresh() {
         binding.historyRefreshLayout.isRefreshing = true
 
-        loadSavedLocations()
+        historyPresenter.loadSavedLocations()
 
         binding.historyRefreshLayout.isRefreshing = false
     }
