@@ -3,6 +3,7 @@ package ch.ti8m.gol.bbw_route.presentation.fragments
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -16,11 +17,12 @@ import ch.ti8m.gol.bbw_route.presentation.App
 import java.util.*
 
 
-class TabHistory : Fragment() {
+class TabHistory : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
     lateinit var binding: FragmentHistoryBinding
     lateinit var savedLocationDataAdapter: SavedLocationDataAdapter
     private lateinit var savedLocationRepository: SavedLocationRepository
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     companion object {
 
@@ -52,7 +54,7 @@ class TabHistory : Fragment() {
 
     private fun initViews() {
         initRecyclerView()
-        fillRecyclerview()
+        dispatchRefresh()
     }
 
     private fun initRecyclerView() {
@@ -63,9 +65,19 @@ class TabHistory : Fragment() {
 
         recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         recyclerView.adapter = savedLocationDataAdapter
+
+        //Set SwipeRefreshLayout
+        swipeRefreshLayout = binding.historyRefreshLayout
+        swipeRefreshLayout.setOnRefreshListener(this)
+        swipeRefreshLayout.post {
+            run{
+                dispatchRefresh()
+            }
+        }
+
     }
 
-    private fun fillRecyclerview() {
+    private fun loadSavedLocations() {
         val savedLocations = savedLocationRepository.getSavedLocations()
         if (!savedLocations.isEmpty()) {
             savedLocationDataAdapter.setSavedLocations(savedLocations)
@@ -73,5 +85,18 @@ class TabHistory : Fragment() {
             savedLocationDataAdapter.setSavedLocations(Collections.emptyList())
         }
     }
+
+    private fun dispatchRefresh() {
+        binding.historyRefreshLayout.isRefreshing = true
+
+        loadSavedLocations()
+
+        binding.historyRefreshLayout.isRefreshing = false
+    }
+
+    override fun onRefresh() {
+        dispatchRefresh()
+    }
+
 
 }
