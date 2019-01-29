@@ -34,9 +34,9 @@ class SavedLocationDAO(val db: SqlDatabase) {
         }
     }
 
-    fun selectFirstSavedLocation(): SavedLocation? {
+    fun selectSavedLocations():List<SavedLocation>{
         return db.use {
-            select(TABLE_NAME).parseOpt(savedLocationParser)
+            select(TABLE_NAME).parseList(savedLocationParser)
         }
     }
 
