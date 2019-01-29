@@ -119,6 +119,14 @@ class TabOverview : Fragment(), OverviewView {
         Toast.makeText(context, "ConnectionsCallback went wrong", Toast.LENGTH_SHORT).show()
     }
 
+    private fun dispatchRefresh() {
+        binding.overviewNextConnectionsRefreshLayout.isRefreshing = true
+
+        getLastKnownLocation()
+
+        binding.overviewNextConnectionsRefreshLayout.isRefreshing = false
+    }
+
     @SuppressLint("MissingPermission")
     private fun getLastKnownLocation() {
         fusedLocationProviderClient.lastLocation.addOnCompleteListener {
