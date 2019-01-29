@@ -16,9 +16,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import ch.ti8m.gol.bbw_route.data.ConnectionsDataAdapter
 import ch.ti8m.gol.bbw_route.databinding.FragmentOverviewBinding
+import ch.ti8m.gol.bbw_route.domain.entity.SavedLocation
 import ch.ti8m.gol.bbw_route.domain.entity.opendata.ConnectionsCall
 import ch.ti8m.gol.bbw_route.domain.entity.openweathermap.WeatherForecast
 import ch.ti8m.gol.bbw_route.domain.entity.search.CloseStation
+import ch.ti8m.gol.bbw_route.persistence.repository.SavedLocationRepository
+import ch.ti8m.gol.bbw_route.presentation.App
 import ch.ti8m.gol.bbw_route.remote.connections.ConnectionsDataService
 import ch.ti8m.gol.bbw_route.remote.connections.ConnectionsRetrofitInstance
 import ch.ti8m.gol.bbw_route.remote.search.CloseStationsService
@@ -32,6 +35,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import timber.log.Timber
+import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -41,7 +45,8 @@ class TabOverview : Fragment() {
     lateinit var binding: FragmentOverviewBinding
     lateinit var connectionsDataAdapter: ConnectionsDataAdapter
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-
+    private lateinit var savedLocationRepository: SavedLocationRepository
+    private lateinit var savedLocation: SavedLocation
 
     companion object {
 
@@ -57,6 +62,7 @@ class TabOverview : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        savedLocationRepository = App.savedLocationRepository
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity as Activity)
     }
 
@@ -124,6 +130,12 @@ class TabOverview : Fragment() {
         call.enqueue(object : Callback<List<CloseStation>> {
             override fun onResponse(call: Call<List<CloseStation>>, response: Response<List<CloseStation>>) {
                 val currentAddress = response.body()!![0].label
+                savedLocation.name = currentAddress
+
+                savedLocationRepository.saveSavedLocation(savedLocation)
+
+                Timber.d("Last location saved.")
+
                 getNextConnections(currentAddress)
             }
 
@@ -178,6 +190,16 @@ class TabOverview : Fragment() {
 
         val windSpeed = "Wind-Speed: ${weatherForecast.wind.speed} m/s"
         binding.overviewWeatherWindSpeedTextview.text = windSpeed
+
+        val localDateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.GERMANY)
+        val now = Date()
+        savedLocation = SavedLocation(
+            "temp",
+            celsiusTempRounded.toDouble(),
+            localDateFormat.format(now),
+            weatherForecast.coordinates.lat,
+            weatherForecast.coordinates.lon
+        )
     }
 
     private fun getWindDirection(direction: Double): String {

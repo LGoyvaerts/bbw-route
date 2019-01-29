@@ -12,7 +12,6 @@ class SavedLocationDAO(val db: SqlDatabase) {
 
     companion object {
         const val TABLE_NAME = "SavedLocation"
-        const val ID = "ID"
         const val NAME = "NAME"
         const val TEMPERATURE = "TEMPERATURE"
         const val DATE = "DATE"
@@ -24,7 +23,6 @@ class SavedLocationDAO(val db: SqlDatabase) {
         db.use {
             insert(
                 TABLE_NAME,
-                ID to 1L,
                 NAME to savedLocation.name,
                 TEMPERATURE to savedLocation.temperature,
                 DATE to savedLocation.date,

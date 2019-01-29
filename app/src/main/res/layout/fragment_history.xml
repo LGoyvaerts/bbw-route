@@ -16,7 +16,7 @@
                 android:id="@+id/history_title_layout">
 
             <TextView
-                    android:text="Deine letzten Orte:"
+                    android:text="Your last locations:"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/history_title_textview"

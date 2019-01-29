@@ -10,7 +10,10 @@ class App : Application() {
 
     private lateinit var sqlDatabase: SqlDatabase
     private lateinit var savedLocationDAO: SavedLocationDAO
-    private lateinit var savedLocationRepository: SavedLocationRepository
+
+    companion object {
+        lateinit var savedLocationRepository: SavedLocationRepository
+    }
 
     override fun onCreate() {
         super.onCreate()

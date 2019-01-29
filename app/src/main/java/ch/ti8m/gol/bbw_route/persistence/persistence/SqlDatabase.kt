@@ -9,7 +9,6 @@ class SqlDatabase(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "bbwrouteDB", nul
     override fun onCreate(db: SQLiteDatabase?) {
         db!!.createTable(
             SavedLocationDAO.TABLE_NAME, true,
-            SavedLocationDAO.ID to INTEGER + PRIMARY_KEY + UNIQUE,
             SavedLocationDAO.NAME to TEXT + NOT_NULL,
             SavedLocationDAO.TEMPERATURE to REAL + NOT_NULL,
             SavedLocationDAO.DATE to TEXT + NOT_NULL,

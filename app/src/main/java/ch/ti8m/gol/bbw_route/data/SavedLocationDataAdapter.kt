@@ -11,6 +11,11 @@ import ch.ti8m.gol.bbw_route.domain.entity.SavedLocation
 class SavedLocationDataAdapter(private var savedLocations: List<SavedLocation>) :
     RecyclerView.Adapter<SavedLocationDataAdapter.ViewHolder>() {
 
+    fun setSavedLocations(savedLocations: List<SavedLocation>) {
+        this.savedLocations = savedLocations
+        notifyDataSetChanged()
+    }
+
     override fun onCreateViewHolder(viewGroup: ViewGroup, p1: Int): ViewHolder {
         val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.saved_location_card_row, viewGroup, false)
         return ViewHolder(view)
@@ -24,16 +29,16 @@ class SavedLocationDataAdapter(private var savedLocations: List<SavedLocation>) 
         val currentSavedLocation = savedLocations[position]
         viewHolder.location_name.text = currentSavedLocation.name
 
-        val locationLatText = "Lat: ${currentSavedLocation.lat}"
+        val locationLatText = "Latitude: ${currentSavedLocation.lat}"
         viewHolder.location_lat.text = locationLatText
 
-        val locationLonText = "Lat: ${currentSavedLocation.lon}"
-        viewHolder.location_lat.text = locationLonText
+        val locationLonText = "Longitude: ${currentSavedLocation.lon}"
+        viewHolder.location_lon.text = locationLonText
 
-        val locationTemperatureText = "Temperatur: ${currentSavedLocation.temperature}"
+        val locationTemperatureText = "Temperature: ${currentSavedLocation.temperature}"
         viewHolder.location_temperature.text = locationTemperatureText
 
-        val locationDateText = "Datum: ${currentSavedLocation.date}"
+        val locationDateText = "Date: ${currentSavedLocation.date}"
         viewHolder.location_date.text = locationDateText
     }
 
