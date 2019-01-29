@@ -115,6 +115,8 @@ class TabOverview : Fragment(), OverviewView, SwipeRefreshLayout.OnRefreshListen
     }
 
     override fun onLoadNextConnections(connections: List<Connection>) {
+        binding.overviewNextConectionsNoConnectionsTextview.visibility = View.GONE
+        binding.overviewConnectionsRecyclerview.visibility = View.VISIBLE
         connectionsDataAdapter.setConnections(connections)
     }
 
@@ -128,7 +130,8 @@ class TabOverview : Fragment(), OverviewView, SwipeRefreshLayout.OnRefreshListen
     }
 
     override fun onConnectionsLoadingFailure() {
-        Toast.makeText(context, "ConnectionsCallback went wrong", Toast.LENGTH_SHORT).show()
+        binding.overviewConnectionsRecyclerview.visibility = View.GONE
+        binding.overviewNextConectionsNoConnectionsTextview.visibility = View.VISIBLE
     }
 
     private fun dispatchRefresh() {
