@@ -9,6 +9,6 @@ import retrofit2.http.Query
 
 interface ConnectionsDataService {
 
-    @GET("connections?to=Winterthur&limit=5")
+    @GET("connections?to=Winterthur&limit=8")
     fun getNextConnections(@Query("from") address: String): Call<ConnectionsCall>
 }

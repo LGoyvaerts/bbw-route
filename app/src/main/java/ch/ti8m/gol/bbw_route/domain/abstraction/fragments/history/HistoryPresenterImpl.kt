@@ -14,7 +14,7 @@ class HistoryPresenterImpl(private val historyView: HistoryView) :
     }
 
     override fun loadSavedLocations() {
-        val savedLocations = savedLocationRepository.getSavedLocations()
+        val savedLocations = savedLocationRepository.getSavedLocations().reversed()
         if (!savedLocations.isEmpty()) {
             historyView.onLoadSavedLocations(savedLocations)
         } else {
