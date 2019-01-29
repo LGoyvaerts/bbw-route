@@ -1,6 +1,7 @@
 package ch.ti8m.gol.bbw_route.data
 
 import android.support.constraint.ConstraintLayout
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -31,6 +32,15 @@ class ConnectionsDataAdapter(private var connections: List<Connection>) :
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
+        if (position % 2 == 0) {
+            viewHolder.connection_layout.setBackgroundColor(
+                ContextCompat.getColor(
+                    viewHolder.connection_layout.context,
+                    R.color.slightGrey
+                )
+            )
+        }
+
         val currentConnection = connections[position]
         val fromText = "From: ${currentConnection.sections[1].journey!!.passList[0].station.name}"
         viewHolder.connection_from.text = fromText

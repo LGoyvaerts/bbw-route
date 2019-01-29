@@ -19,6 +19,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/connection_detail_title_layout"/>
 
         <android.support.constraint.ConstraintLayout
+                android:background="@color/slightGrey"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toTopOf="parent"

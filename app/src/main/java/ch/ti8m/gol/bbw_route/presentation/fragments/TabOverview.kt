@@ -16,37 +16,23 @@ import android.view.ViewGroup
 import android.widget.Toast
 import ch.ti8m.gol.bbw_route.data.ConnectionsDataAdapter
 import ch.ti8m.gol.bbw_route.databinding.FragmentOverviewBinding
-import ch.ti8m.gol.bbw_route.domain.entity.SavedLocation
-import ch.ti8m.gol.bbw_route.domain.entity.opendata.ConnectionsCall
-import ch.ti8m.gol.bbw_route.domain.entity.openweathermap.WeatherForecast
-import ch.ti8m.gol.bbw_route.domain.entity.search.CloseStation
-import ch.ti8m.gol.bbw_route.persistence.repository.SavedLocationRepository
-import ch.ti8m.gol.bbw_route.presentation.App
-import ch.ti8m.gol.bbw_route.remote.connections.ConnectionsDataService
-import ch.ti8m.gol.bbw_route.remote.connections.ConnectionsRetrofitInstance
-import ch.ti8m.gol.bbw_route.remote.search.CloseStationsService
-import ch.ti8m.gol.bbw_route.remote.search.SearchRetrofitInstance
-import ch.ti8m.gol.bbw_route.remote.weather.WeatherDataService
-import ch.ti8m.gol.bbw_route.remote.weather.WeatherRetrofitInstance
+import ch.ti8m.gol.bbw_route.domain.abstraction.fragments.overview.OverviewPresenter
+import ch.ti8m.gol.bbw_route.domain.abstraction.fragments.overview.OverviewPresenterImpl
+import ch.ti8m.gol.bbw_route.domain.abstraction.fragments.overview.OverviewView
+import ch.ti8m.gol.bbw_route.domain.entity.opendata.Connection
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import org.apache.commons.text.WordUtils
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import timber.log.Timber
-import java.text.SimpleDateFormat
 import java.util.*
 
 
-class TabOverview : Fragment() {
+class TabOverview : Fragment(), OverviewView {
 
     private val REQUEST_PERMISSIONS_REQUEST_CODE = 99
     lateinit var binding: FragmentOverviewBinding
     lateinit var connectionsDataAdapter: ConnectionsDataAdapter
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    private lateinit var savedLocationRepository: SavedLocationRepository
-    private lateinit var savedLocation: SavedLocation
+    private lateinit var overviewPresenter: OverviewPresenter
 
     companion object {
 
@@ -61,9 +47,10 @@ class TabOverview : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        savedLocationRepository = App.savedLocationRepository
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity as Activity)
+
+        overviewPresenter = OverviewPresenterImpl(this)
+        overviewPresenter.initRepository()
     }
 
     override fun onStart() {
@@ -85,14 +72,7 @@ class TabOverview : Fragment() {
         return binding.root
     }
 
-    private fun handleCoordinates(lat: String, lon: String) {
-        initRecyclerView()
-        getWeatherForecast(lat, lon)
-        getCurrentAddress(lat, lon)
-
-    }
-
-    private fun initRecyclerView() {
+    override fun onInitRecyclerView() {
         val recyclerView = binding.overviewConnectionsRecyclerview
         recyclerView.setHasFixedSize(true)
         val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(context)
@@ -102,133 +82,48 @@ class TabOverview : Fragment() {
         recyclerView.adapter = connectionsDataAdapter
     }
 
-    private fun getWeatherForecast(lat: String, lon: String) {
-        //Create handle for RetrofitInstance interface
-        val weatherDataService: WeatherDataService =
-            WeatherRetrofitInstance.getRetrofitInstance().create(WeatherDataService::class.java)
-
-        val call = weatherDataService.getWeatherForecast(lat, lon)
-
-        call.enqueue(object : Callback<WeatherForecast> {
-            override fun onResponse(call: Call<WeatherForecast>, response: Response<WeatherForecast>) {
-                initWeatherViews(response.body()!!)
-            }
-
-            override fun onFailure(call: Call<WeatherForecast>, t: Throwable) {
-                Toast.makeText(this@TabOverview.context, "WeatherCallback went wrong", Toast.LENGTH_SHORT).show()
-                Timber.e("Weather Callback went wrong: $t")
-            }
-        })
-    }
-
-    private fun getCurrentAddress(lat: String, lon: String) {
-        //Create handle for RetrofitInstance interface
-        val closeStationsService: CloseStationsService =
-            SearchRetrofitInstance.getRetrofitInstance().create(CloseStationsService::class.java)
-        val call = closeStationsService.getCloseStations("$lat,$lon")
-
-        call.enqueue(object : Callback<List<CloseStation>> {
-            override fun onResponse(call: Call<List<CloseStation>>, response: Response<List<CloseStation>>) {
-                val currentAddress = response.body()!![0].label
-                savedLocation.name = currentAddress
-
-                savedLocationRepository.saveSavedLocation(savedLocation)
-
-                Timber.d("Last location saved.")
-
-                getNextConnections(currentAddress)
-            }
-
-            override fun onFailure(call: Call<List<CloseStation>>, t: Throwable) {
-                Toast.makeText(this@TabOverview.context, "CloseStation Callback went wrong", Toast.LENGTH_SHORT).show()
-            }
-        })
-
-    }
-
-    private fun getNextConnections(address: String) {
-        val connectionsDataService: ConnectionsDataService =
-            ConnectionsRetrofitInstance.getRetrofitInstance().create(ConnectionsDataService::class.java)
-        val call = connectionsDataService.getNextConnections(address)
-
-        call.enqueue(object : Callback<ConnectionsCall> {
-            override fun onResponse(call: Call<ConnectionsCall>, response: Response<ConnectionsCall>) {
-                val connectionsCall = response.body()!!
-                connectionsDataAdapter.setConnections(connectionsCall.connections!!)
-            }
-
-            override fun onFailure(call: Call<ConnectionsCall>, t: Throwable) {
-                Toast.makeText(this@TabOverview.context, "ConnectionsCall Callback went wrong", Toast.LENGTH_SHORT)
-                    .show()
-            }
-        })
-    }
-
-    private fun initWeatherViews(weatherForecast: WeatherForecast) {
-        binding.overviewWeatherLocationTextview.text = weatherForecast.locationName
-
-        val celsiusTemp = weatherForecast.mainInformation.temp - 273.15
-        val celsiusTempRounded = "%.2f".format(celsiusTemp)
-        val celsiusString = "$celsiusTempRounded °C"
-        binding.overviewWeatherTemperatureTextview.text = celsiusString
-
-        val conditionTextBetterReadable = WordUtils.capitalizeFully(weatherForecast.weather[0].conditionDescription)
-        val condition = "Condition: $conditionTextBetterReadable"
-        binding.overviewWeatherConditionTextview.text = condition
-
-        val humidity = "Humidity: ${weatherForecast.mainInformation.humidity}%"
+    override fun onInitWeatherViews(
+        locationName: String,
+        temperature: String,
+        weatherCondition: String,
+        humidity: String,
+        lat: String,
+        lon: String,
+        windDirection: String,
+        windSpeed: String
+    ) {
+        binding.overviewWeatherLocationTextview.text = locationName
+        binding.overviewWeatherTemperatureTextview.text = temperature
+        binding.overviewWeatherConditionTextview.text = weatherCondition
         binding.overviewWeatherHumidityTextview.text = humidity
-
-        val lat = "Latitude: ${weatherForecast.coordinates.lat}"
         binding.overviewWeatherLatTextview.text = lat
-
-        val lon = "Longitude: ${weatherForecast.coordinates.lon}"
         binding.overviewWeatherLonTextview.text = lon
-
-        val windDirection = "Wind-Direction: ${getWindDirection(weatherForecast.wind.direction)}"
         binding.overviewWeatherWindDirectionTextview.text = windDirection
-
-        val windSpeed = "Wind-Speed: ${weatherForecast.wind.speed} m/s"
         binding.overviewWeatherWindSpeedTextview.text = windSpeed
-
-        val localDateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.GERMANY)
-        val now = Date()
-        savedLocation = SavedLocation(
-            "temp",
-            celsiusTempRounded.toDouble(),
-            localDateFormat.format(now),
-            weatherForecast.coordinates.lat,
-            weatherForecast.coordinates.lon
-        )
     }
 
-    private fun getWindDirection(direction: Double): String {
-        var temp = "Unknown"
-        if (direction >= 337.5 || direction < 22.5) {
-            temp = "N"
-        } else if (direction >= 22.5 && direction < 67.5) {
-            temp = "NE"
-        } else if (direction >= 67.5 && direction < 112.5) {
-            temp = "E"
-        } else if (direction >= 112.5 && direction < 157.5) {
-            temp = "SE"
-        } else if (direction >= 157.5 && direction < 202.5) {
-            temp = "S"
-        } else if (direction >= 202.5 && direction < 247.5) {
-            temp = "SW"
-        } else if (direction >= 247.5 && direction < 292.5) {
-            temp = "W"
-        } else if (direction >= 292.5 && direction < 300) {
-            temp = "NW"
-        }
-        return temp
+    override fun onLoadNextConnections(connections: List<Connection>) {
+        connectionsDataAdapter.setConnections(connections)
+    }
+
+
+    override fun onWeatherLoadingFailure() {
+        Toast.makeText(context, "WeatherCallback went wrong", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onAddressLoadingFailure() {
+        Toast.makeText(context, "AddressCallback went wrong", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onConnectionsLoadingFailure() {
+        Toast.makeText(context, "ConnectionsCallback went wrong", Toast.LENGTH_SHORT).show()
     }
 
     @SuppressLint("MissingPermission")
     private fun getLastKnownLocation() {
         fusedLocationProviderClient.lastLocation.addOnCompleteListener {
             if (it.isSuccessful && it.result != null) {
-                handleCoordinates(it.result!!.latitude.toString(), it.result!!.longitude.toString())
+                overviewPresenter.handleCoordinates(it.result!!.latitude.toString(), it.result!!.longitude.toString())
             }
         }.addOnFailureListener {
             Timber.e(it)

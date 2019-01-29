@@ -11,14 +11,18 @@ import android.support.v7.widget.RecyclerView
 import ch.ti8m.gol.bbw_route.R
 import ch.ti8m.gol.bbw_route.data.ConnectionDetailDataAdapter
 import ch.ti8m.gol.bbw_route.databinding.ActivityConnectionDetailBinding
+import ch.ti8m.gol.bbw_route.domain.abstraction.connectiondetail.DetailPresenter
+import ch.ti8m.gol.bbw_route.domain.abstraction.connectiondetail.DetailPresenterImpl
+import ch.ti8m.gol.bbw_route.domain.abstraction.connectiondetail.DetailView
 import ch.ti8m.gol.bbw_route.domain.entity.opendata.Connection
-import com.google.gson.Gson
+import ch.ti8m.gol.bbw_route.domain.entity.opendata.Section
+import timber.log.Timber
 import java.util.*
 
-class ConnectionDetailActivity : AppCompatActivity() {
+class ConnectionDetailActivity : AppCompatActivity(), DetailView {
 
     lateinit var connectionDetailDataAdapter: ConnectionDetailDataAdapter
-    private lateinit var currentConnection: Connection
+    private lateinit var detailPresenter: DetailPresenter
     lateinit var binding: ActivityConnectionDetailBinding
 
     companion object {
@@ -35,16 +39,23 @@ class ConnectionDetailActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_connection_detail)
 
         connectionDetailDataAdapter = ConnectionDetailDataAdapter(Collections.emptyList())
+        detailPresenter = DetailPresenterImpl(this)
 
         initRecyclerView()
 
-        val gson = Gson()
         val connectionString = intent.extras?.getString("currentConnection")
-        currentConnection = gson.fromJson(connectionString, Connection::class.java)
-
-        connectionDetailDataAdapter.setSections(currentConnection.sections)
+        if (connectionString != null) {
+            detailPresenter.parseCurrentConnection(connectionString)
+        } else {
+            Timber.e("CurrentConnection not found.")
+        }
 
     }
+
+    override fun onLoadSections(sections: List<Section>) {
+        connectionDetailDataAdapter.setSections(sections)
+    }
+
 
     private fun initRecyclerView() {
         val recyclerView = binding.connectionDetailRecyclerview

@@ -7,4 +7,5 @@
     <color name="colorTabText">#ffffff</color>
     <color name="colorButton">#50e5c2</color>
     <color name="white">#FFFFFF</color>
+    <color name="slightGrey">#f5f5f5</color>
 </resources>
