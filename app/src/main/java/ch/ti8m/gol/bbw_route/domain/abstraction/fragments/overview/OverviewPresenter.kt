@@ -6,5 +6,4 @@ interface OverviewPresenter {
 
     fun initRepository()
     fun handleCoordinates(lat: String, lon: String)
-    fun prepareWeatherInformation(weatherForecast: WeatherForecast)
 }

@@ -35,7 +35,7 @@ class OverviewPresenterImpl(private val overviewView: OverviewView) : OverviewPr
         getCurrentAddress(lat, lon)
     }
 
-    override fun prepareWeatherInformation(weatherForecast: WeatherForecast) {
+    private fun prepareWeatherInformation(weatherForecast: WeatherForecast) {
         val locationName = weatherForecast.locationName
 
         val celsiusTemp = weatherForecast.mainInformation.temp - 273.15
@@ -65,7 +65,16 @@ class OverviewPresenterImpl(private val overviewView: OverviewView) : OverviewPr
             weatherForecast.coordinates.lon
         )
 
-        overviewView.onInitWeatherViews(locationName, celsiusString, condition, humidity, lat, lon, windDirection, windSpeed)
+        overviewView.onInitWeatherViews(
+            locationName,
+            celsiusString,
+            condition,
+            humidity,
+            lat,
+            lon,
+            windDirection,
+            windSpeed
+        )
     }
 
     private fun getWeatherForecast(lat: String, lon: String) {
