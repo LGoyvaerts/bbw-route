@@ -70,11 +70,12 @@ class TabOverview : Fragment(), OverviewView, SwipeRefreshLayout.OnRefreshListen
         binding = FragmentOverviewBinding.inflate(inflater, container, false)
 
         connectionsDataAdapter = ConnectionsDataAdapter(Collections.emptyList())
+        initRecyclerView()
 
         return binding.root
     }
 
-    override fun onInitRecyclerView() {
+    private fun initRecyclerView() {
         val recyclerView = binding.overviewConnectionsRecyclerview
         recyclerView.setHasFixedSize(true)
         val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(context)
@@ -139,7 +140,7 @@ class TabOverview : Fragment(), OverviewView, SwipeRefreshLayout.OnRefreshListen
     }
 
     override fun onRefresh() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        dispatchRefresh()
     }
 
     @SuppressLint("MissingPermission")
