@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
+import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -26,13 +27,14 @@ import timber.log.Timber
 import java.util.*
 
 
-class TabOverview : Fragment(), OverviewView {
+class TabOverview : Fragment(), OverviewView, SwipeRefreshLayout.OnRefreshListener {
 
     private val REQUEST_PERMISSIONS_REQUEST_CODE = 99
     lateinit var binding: FragmentOverviewBinding
     lateinit var connectionsDataAdapter: ConnectionsDataAdapter
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var overviewPresenter: OverviewPresenter
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     companion object {
 
@@ -80,6 +82,15 @@ class TabOverview : Fragment(), OverviewView {
 
         recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         recyclerView.adapter = connectionsDataAdapter
+
+        //Set SwipeRefreshLayout
+        swipeRefreshLayout = binding.overviewNextConnectionsRefreshLayout
+        swipeRefreshLayout.setOnRefreshListener(this)
+        swipeRefreshLayout.post {
+            run {
+                dispatchRefresh()
+            }
+        }
     }
 
     override fun onInitWeatherViews(
@@ -125,6 +136,10 @@ class TabOverview : Fragment(), OverviewView {
         getLastKnownLocation()
 
         binding.overviewNextConnectionsRefreshLayout.isRefreshing = false
+    }
+
+    override fun onRefresh() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     @SuppressLint("MissingPermission")
