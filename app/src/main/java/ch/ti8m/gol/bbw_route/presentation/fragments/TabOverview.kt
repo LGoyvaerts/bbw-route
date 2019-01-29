@@ -58,8 +58,6 @@ class TabOverview : Fragment() {
         super.onCreate(savedInstanceState)
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity as Activity)
-
-
     }
 
     override fun onStart() {
