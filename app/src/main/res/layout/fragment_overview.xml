@@ -32,7 +32,6 @@
                 android:id="@+id/overview_weather_layout">
 
             <TextView
-                    android:text="TextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/overview_weather_location_textview"
@@ -44,7 +43,6 @@
                     android:textStyle="bold"/>
 
             <TextView
-                    android:text="TextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/overview_weather_temperature_textview"
@@ -56,7 +54,6 @@
                     android:textStyle="bold"/>
 
             <TextView
-                    android:text="TextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/overview_weather_condition_textview"
@@ -66,7 +63,6 @@
                     app:layout_constraintTop_toBottomOf="@+id/overview_weather_location_textview"/>
 
             <TextView
-                    android:text="TextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/overview_weather_humidity_textview"
@@ -76,7 +72,6 @@
                     app:layout_constraintTop_toBottomOf="@+id/overview_weather_temperature_textview"/>
 
             <TextView
-                    android:text="TextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/overview_weather_lat_textview"
@@ -86,7 +81,6 @@
                     app:layout_constraintTop_toBottomOf="@+id/overview_weather_condition_textview"/>
 
             <TextView
-                    android:text="TextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/overview_weather_lon_textview"
@@ -96,7 +90,6 @@
                     android:layout_marginEnd="16dp"/>
 
             <TextView
-                    android:text="TextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/overview_weather_wind_direction_textview"
@@ -108,7 +101,6 @@
                     android:layout_marginStart="16dp"/>
 
             <TextView
-                    android:text="TextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/overview_weather_wind_speed_textview"
