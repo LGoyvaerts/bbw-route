@@ -5,7 +5,6 @@ import ch.ti8m.gol.bbw_route.domain.entity.openweathermap.WeatherForecast
 
 interface OverviewView {
 
-    fun onInitRecyclerView()
     fun onInitWeatherViews(
         locationName: String,
         temperature: String,
