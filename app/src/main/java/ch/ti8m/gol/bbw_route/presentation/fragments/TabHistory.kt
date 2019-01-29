@@ -56,7 +56,14 @@ class TabHistory : Fragment(), SwipeRefreshLayout.OnRefreshListener, HistoryView
     }
 
     override fun onLoadSavedLocations(savedLocations: List<SavedLocation>) {
+        binding.historyNoLocationsTextview.visibility = View.GONE
+        binding.historySavedLocationsRecyclerview.visibility = View.VISIBLE
         savedLocationDataAdapter.setSavedLocations(savedLocations)
+    }
+
+    override fun onNoLocationsFound() {
+        binding.historySavedLocationsRecyclerview.visibility = View.GONE
+        binding.historyNoLocationsTextview.visibility = View.VISIBLE
     }
 
     private fun initViews() {

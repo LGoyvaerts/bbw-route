@@ -30,7 +30,6 @@ class OverviewPresenterImpl(private val overviewView: OverviewView) : OverviewPr
     }
 
     override fun handleCoordinates(lat: String, lon: String) {
-        overviewView.onInitRecyclerView()
         getWeatherForecast(lat, lon)
         getCurrentAddress(lat, lon)
     }

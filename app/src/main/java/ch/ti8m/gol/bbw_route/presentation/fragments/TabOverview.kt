@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
+import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -26,13 +27,14 @@ import timber.log.Timber
 import java.util.*
 
 
-class TabOverview : Fragment(), OverviewView {
+class TabOverview : Fragment(), OverviewView, SwipeRefreshLayout.OnRefreshListener {
 
     private val REQUEST_PERMISSIONS_REQUEST_CODE = 99
     lateinit var binding: FragmentOverviewBinding
     lateinit var connectionsDataAdapter: ConnectionsDataAdapter
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var overviewPresenter: OverviewPresenter
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     companion object {
 
@@ -68,11 +70,12 @@ class TabOverview : Fragment(), OverviewView {
         binding = FragmentOverviewBinding.inflate(inflater, container, false)
 
         connectionsDataAdapter = ConnectionsDataAdapter(Collections.emptyList())
+        initRecyclerView()
 
         return binding.root
     }
 
-    override fun onInitRecyclerView() {
+    private fun initRecyclerView() {
         val recyclerView = binding.overviewConnectionsRecyclerview
         recyclerView.setHasFixedSize(true)
         val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(context)
@@ -80,6 +83,15 @@ class TabOverview : Fragment(), OverviewView {
 
         recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         recyclerView.adapter = connectionsDataAdapter
+
+        //Set SwipeRefreshLayout
+        swipeRefreshLayout = binding.overviewNextConnectionsRefreshLayout
+        swipeRefreshLayout.setOnRefreshListener(this)
+        swipeRefreshLayout.post {
+            run {
+                dispatchRefresh()
+            }
+        }
     }
 
     override fun onInitWeatherViews(
@@ -103,6 +115,8 @@ class TabOverview : Fragment(), OverviewView {
     }
 
     override fun onLoadNextConnections(connections: List<Connection>) {
+        binding.overviewNextConectionsNoConnectionsTextview.visibility = View.GONE
+        binding.overviewConnectionsRecyclerview.visibility = View.VISIBLE
         connectionsDataAdapter.setConnections(connections)
     }
 
@@ -116,7 +130,20 @@ class TabOverview : Fragment(), OverviewView {
     }
 
     override fun onConnectionsLoadingFailure() {
-        Toast.makeText(context, "ConnectionsCallback went wrong", Toast.LENGTH_SHORT).show()
+        binding.overviewConnectionsRecyclerview.visibility = View.GONE
+        binding.overviewNextConectionsNoConnectionsTextview.visibility = View.VISIBLE
+    }
+
+    private fun dispatchRefresh() {
+        binding.overviewNextConnectionsRefreshLayout.isRefreshing = true
+
+        getLastKnownLocation()
+
+        binding.overviewNextConnectionsRefreshLayout.isRefreshing = false
+    }
+
+    override fun onRefresh() {
+        dispatchRefresh()
     }
 
     @SuppressLint("MissingPermission")

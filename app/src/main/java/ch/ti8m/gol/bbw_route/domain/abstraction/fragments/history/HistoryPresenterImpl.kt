@@ -2,7 +2,6 @@ package ch.ti8m.gol.bbw_route.domain.abstraction.fragments.history
 
 import ch.ti8m.gol.bbw_route.persistence.repository.SavedLocationRepository
 import ch.ti8m.gol.bbw_route.presentation.App
-import java.util.*
 
 class HistoryPresenterImpl(private val historyView: HistoryView) :
     HistoryPresenter {
@@ -18,7 +17,7 @@ class HistoryPresenterImpl(private val historyView: HistoryView) :
         if (!savedLocations.isEmpty()) {
             historyView.onLoadSavedLocations(savedLocations)
         } else {
-            historyView.onLoadSavedLocations(Collections.emptyList())
+            historyView.onNoLocationsFound()
         }
     }
 }
