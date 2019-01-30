@@ -87,11 +87,11 @@ class TabOverview : Fragment(), OverviewView, SwipeRefreshLayout.OnRefreshListen
         //Set SwipeRefreshLayout
         swipeRefreshLayout = binding.overviewNextConnectionsRefreshLayout
         swipeRefreshLayout.setOnRefreshListener(this)
-        swipeRefreshLayout.post {
-            run {
-                dispatchRefresh()
-            }
-        }
+//        swipeRefreshLayout.post {
+//            run {
+//                dispatchRefresh()
+//            }
+//        }
     }
 
     override fun onInitWeatherViews(
