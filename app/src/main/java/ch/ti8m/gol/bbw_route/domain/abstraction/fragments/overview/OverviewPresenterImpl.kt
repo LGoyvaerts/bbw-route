@@ -24,22 +24,14 @@ class OverviewPresenterImpl(private val overviewView: OverviewView) : OverviewPr
 
     private lateinit var savedLocationRepository: SavedLocationRepository
     private lateinit var savedLocation: SavedLocation
-    private var isCreated = false
 
     override fun initRepository() {
         savedLocationRepository = App.savedLocationRepository
     }
 
-    override fun handleCoordinates(lat: String, lon: String, beforeCreate: Boolean) {
-        var allowed = false
-        if (beforeCreate || isCreated) {
-            allowed = true
-        }
-        if (allowed) {
-            isCreated = true
-            getWeatherForecast(lat, lon)
-            getCurrentAddress(lat, lon)
-        }
+    override fun handleCoordinates(lat: String, lon: String) {
+        getWeatherForecast(lat, lon)
+        getCurrentAddress(lat, lon)
     }
 
     private fun prepareWeatherInformation(weatherForecast: WeatherForecast) {
