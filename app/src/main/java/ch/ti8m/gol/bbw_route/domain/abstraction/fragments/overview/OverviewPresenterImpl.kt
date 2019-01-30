@@ -29,7 +29,7 @@ class OverviewPresenterImpl(private val overviewView: OverviewView) : OverviewPr
         savedLocationRepository = App.savedLocationRepository
     }
 
-    override fun handleCoordinates(lat: String, lon: String) {
+    override fun handleCoordinates(lat: String, lon: String, beforeCreate: Boolean) {
         getWeatherForecast(lat, lon)
         getCurrentAddress(lat, lon)
     }
