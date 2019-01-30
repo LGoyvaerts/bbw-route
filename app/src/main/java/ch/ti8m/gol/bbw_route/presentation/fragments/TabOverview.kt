@@ -61,7 +61,7 @@ class TabOverview : Fragment(), OverviewView, SwipeRefreshLayout.OnRefreshListen
         if (!checkPermissions()) {
             requestPermissions()
         } else {
-            getLastKnownLocation()
+            getLastKnownLocation(true)
         }
     }
 
@@ -137,7 +137,7 @@ class TabOverview : Fragment(), OverviewView, SwipeRefreshLayout.OnRefreshListen
     private fun dispatchRefresh() {
         binding.overviewNextConnectionsRefreshLayout.isRefreshing = true
 
-        getLastKnownLocation()
+        getLastKnownLocation(false)
 
         binding.overviewNextConnectionsRefreshLayout.isRefreshing = false
     }
@@ -147,10 +147,10 @@ class TabOverview : Fragment(), OverviewView, SwipeRefreshLayout.OnRefreshListen
     }
 
     @SuppressLint("MissingPermission")
-    private fun getLastKnownLocation() {
+    private fun getLastKnownLocation(beforeCreate:Boolean) {
         fusedLocationProviderClient.lastLocation.addOnCompleteListener {
             if (it.isSuccessful && it.result != null) {
-                overviewPresenter.handleCoordinates(it.result!!.latitude.toString(), it.result!!.longitude.toString())
+                overviewPresenter.handleCoordinates(it.result!!.latitude.toString(), it.result!!.longitude.toString(), beforeCreate)
             }
         }.addOnFailureListener {
             Timber.e(it)
@@ -206,7 +206,7 @@ class TabOverview : Fragment(), OverviewView, SwipeRefreshLayout.OnRefreshListen
                     // permission was granted, yay! Do the
                     // location-related task you need to do.
 
-                    getLastKnownLocation()
+                    getLastKnownLocation(true)
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
