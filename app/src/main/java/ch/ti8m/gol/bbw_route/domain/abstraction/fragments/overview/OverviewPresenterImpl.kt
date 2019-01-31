@@ -55,7 +55,8 @@ class OverviewPresenterImpl(private val overviewView: OverviewView) : OverviewPr
         val windSpeed = "Wind-Speed: ${weatherForecast.wind.speed} m/s"
 
         val localDateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.GERMANY)
-        val now = Date()savedLocation = SavedLocation(
+        val now = Date()
+        savedLocation = SavedLocation(
             "temp",
             celsiusTempRounded.toDouble(),
             localDateFormat.format(now),
@@ -133,9 +134,10 @@ class OverviewPresenterImpl(private val overviewView: OverviewView) : OverviewPr
 
                 if (connections != null) {
                     if (connections[0].sections.size == 1) {
-                        overviewView.onLoadNextConnections(Collections.emptyList())
+                        overviewView.onTooCloseToTarget()
+                    } else {
+                        overviewView.onLoadNextConnections(connections)
                     }
-                    overviewView.onLoadNextConnections(connections)
                 } else {
                     overviewView.onConnectionsLoadingFailure()
                 }
