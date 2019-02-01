@@ -16,6 +16,7 @@ interface OverviewView {
         windSpeed: String
     )
     fun onLoadNextConnections(connections: List<Connection>)
+    fun onTooCloseToTarget()
 
     fun onWeatherLoadingFailure()
     fun onAddressLoadingFailure()

@@ -87,11 +87,11 @@ class TabOverview : Fragment(), OverviewView, SwipeRefreshLayout.OnRefreshListen
         //Set SwipeRefreshLayout
         swipeRefreshLayout = binding.overviewNextConnectionsRefreshLayout
         swipeRefreshLayout.setOnRefreshListener(this)
-        swipeRefreshLayout.post {
-            run {
-                dispatchRefresh()
-            }
-        }
+//        swipeRefreshLayout.post {
+//            run {
+//                dispatchRefresh()
+//            }
+//        }
     }
 
     override fun onInitWeatherViews(
@@ -115,11 +115,19 @@ class TabOverview : Fragment(), OverviewView, SwipeRefreshLayout.OnRefreshListen
     }
 
     override fun onLoadNextConnections(connections: List<Connection>) {
+        binding.overviewNextConnectionsTooCloseTextview.visibility = View.GONE
         binding.overviewNextConectionsNoConnectionsTextview.visibility = View.GONE
         binding.overviewConnectionsRecyclerview.visibility = View.VISIBLE
         connectionsDataAdapter.setConnections(connections)
     }
 
+    override fun onTooCloseToTarget() {
+        binding.overviewConnectionsRecyclerview.visibility = View.GONE
+        binding.overviewNextConectionsNoConnectionsTextview.visibility = View.GONE
+        binding.overviewNextConnectionsTooCloseTextview.visibility = View.VISIBLE
+        val tooCloseText = "Too close to Target location. No Connections found."
+        binding.overviewNextConnectionsTooCloseTextview.text = tooCloseText
+    }
 
     override fun onWeatherLoadingFailure() {
         Toast.makeText(context, "WeatherCallback went wrong", Toast.LENGTH_SHORT).show()
@@ -130,6 +138,7 @@ class TabOverview : Fragment(), OverviewView, SwipeRefreshLayout.OnRefreshListen
     }
 
     override fun onConnectionsLoadingFailure() {
+        binding.overviewNextConnectionsTooCloseTextview.visibility = View.GONE
         binding.overviewConnectionsRecyclerview.visibility = View.GONE
         binding.overviewNextConectionsNoConnectionsTextview.visibility = View.VISIBLE
     }

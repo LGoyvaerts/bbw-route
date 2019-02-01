@@ -133,7 +133,11 @@ class OverviewPresenterImpl(private val overviewView: OverviewView) : OverviewPr
                 val connections = response.body()!!.connections
 
                 if (connections != null) {
-                    overviewView.onLoadNextConnections(connections)
+                    if (connections[0].sections.size == 1) {
+                        overviewView.onTooCloseToTarget()
+                    } else {
+                        overviewView.onLoadNextConnections(connections)
+                    }
                 } else {
                     overviewView.onConnectionsLoadingFailure()
                 }
